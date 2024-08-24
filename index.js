@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv/config');
 // const Product = require('./models/Product');
+const productsRouter = requite('./routes/product');
 
 app.use(cors());
 app.options('*', cors());
@@ -21,7 +22,6 @@ app.use (`${api}/products`, productsRouter);
 
 
 const api = process.env.API_URL;
-const productsRouter = requite('./routers/product');
 
 
 mongoose.connect(process.env.CONNECTION_STRING)
