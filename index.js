@@ -6,7 +6,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv/config');
 // const Product = require('./models/Product');
-const productsRouter = requite('./routes/product');
+const productsRouter = require('./routes/product');
+const categoriesRoutes = require('./routes/categories');
+const usersRoutes = require('./routes/users');
+const ordersRoutes = require('./routes/orders');
 
 app.use(cors());
 app.options('*', cors());
@@ -15,13 +18,14 @@ app.options('*', cors());
 //the backend would understand json sent from the frontend
 app.use(bodyParser.json());
 app.use(morgan('tiny'));
-app.use()
+
+const api = process.env.API_URL;
 
 //Routers
 app.use (`${api}/products`, productsRouter);
-
-
-const api = process.env.API_URL;
+app.use(`${api}/categories`, categoriesRoutes);
+app.use(`${api}/users`, usersRoutes);
+app.use(`${api}/orders`, ordersRoutes);
 
 
 mongoose.connect(process.env.CONNECTION_STRING)
