@@ -9,28 +9,55 @@ const mongoose = require('mongoose');
 app.use(bodyParser.json());
 app.use(morgan('tiny'));
 
-
-
 require('dotenv/config');
 
 const api = process.env.API_URL;
 
-app.get(`${api}/products`, (req, res) => {
-  const product = {
-    id: 1,
-    name: 'Product 1',
-    price: 100,
-    image: 'url'
+const productSchema = mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  price: Number,
+  image: String,
+  description: String,
+  countInStock: Number,
+})
+
+const Product = mongoose.model('Product', productSchema);
+
+app.get(`${api}/products`, async (req, res) => {
+  const productList = await Product.find();
+
+  if(!productList) {
+    res.status(500).json({success: false})
   }
-  res.send(product);
+  res.send(productList);
 })
 
 app.post(`${api}/products`, (req, res) => {
   //To get data from the frontend we use res.body
   // middleware is a function that has control of the request and response of any API
-  const newProduct = req.body
-  console.log(newProduct);
-  res.send(newProduct);
+  // const newProduct = req.body
+  // console.log(newProduct);
+
+  const product = new Product({
+    name: req.body.name,
+    price: req.body.price,
+    image: req.body.image,
+    description: req.body.description,
+    countInStock: req.body.countInStock
+  })
+
+  product.save().then((createdProduct) => {
+    res.status(201).json(createdProduct)
+  }).catch((err) => {
+    res.status(500).json({
+      error: err,
+      success: false
+    })
+  })
+
 })
 
 mongoose.connect(process.env.CONNECTION_STRING)
