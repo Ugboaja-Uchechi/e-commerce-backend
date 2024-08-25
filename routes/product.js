@@ -1,39 +1,55 @@
-const {Product} = require('../models/Product');
+const { Product } = require('../models/Product');
+const { Category } = require('../models/category');
 const express = require('express');
 const router = express.Router();
 
 router.get(`/`, async (req, res) => {
-  const productList = await Product.find();
+  let filter = {};
+  if (req.query.categories) {
+    filter = { category: req.query.categories.split(',') }
+  }
 
-  if(!productList) {
-    res.status(500).json({success: false})
+  const productList = await Product.find(filter).populate('category');
+
+  if (!productList) {
+    res.status(500).json({ success: false })
   }
   res.send(productList);
 })
 
-router.post(`/`, (req, res) => {
+router.get(`/:id`, async (req, res) => {
+  const product = await Product.findById(req.params.id).populate('category');
+
+  if (!product) {
+    res.status(500).json({ success: false })
+  }
+  res.send(product);
+})
+
+router.post(`/`, async (req, res) => {
   //To get data from the frontend we use res.body
   // middleware is a function that has control of the request and response of any API
   // const newProduct = req.body
   // console.log(newProduct);
 
-  const product = new Product({
+  const category = await Category.findById(req.body.category);
+  if (!category) return res.status(400).send('Invalid Category')
+
+  let product = new Product({
     name: req.body.name,
     price: req.body.price,
     image: req.body.image,
     description: req.body.description,
-    countInStock: req.body.countInStock
+    countInStock: req.body.countInStock,
+    category: req.body.category,
   })
 
-  product.save().then((createdProduct) => {
-    res.status(201).json(createdProduct)
-  }).catch((err) => {
-    res.status(500).json({
-      error: err,
-      success: false
-    })
-  })
+  product = await product.save();
 
+  if (!product)
+    return res.status(500).send('The product cannot be created')
+
+  res.send(product);
 })
 
 module.exports = router;
