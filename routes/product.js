@@ -1,5 +1,6 @@
 const { Product } = require('../models/Product');
 const { Category } = require('../models/category');
+const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 
@@ -48,6 +49,32 @@ router.post(`/`, async (req, res) => {
 
   if (!product)
     return res.status(500).send('The product cannot be created')
+
+  res.send(product);
+})
+
+router.put('/:id',async (req, res)=> {
+  if(!mongoose.isValidObjectId(req.params.id)) {
+     return res.status(400).send('Invalid Product Id')
+  }
+  const category = await Category.findById(req.body.category);
+  if(!category) return res.status(400).send('Invalid Category')
+
+  const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        name: req.body.name,
+        price: req.body.price,
+        image: req.body.image,
+        description: req.body.description,
+        countInStock: req.body.countInStock,
+        category: req.body.category,
+      },
+      { new: true}
+  )
+
+  if(!product)
+  return res.status(500).send('the product cannot be updated!')
 
   res.send(product);
 })
