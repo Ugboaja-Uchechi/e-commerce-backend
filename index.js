@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv/config');
+const authJwt = require('./helpers/jwt');
+const errorHandler = require('./helpers/error-handler');
 // const Product = require('./models/Product');
 const productsRouter = require('./routes/product');
 const categoriesRoutes = require('./routes/categories');
@@ -18,6 +20,8 @@ app.options('*', cors());
 //the backend would understand json sent from the frontend
 app.use(bodyParser.json());
 app.use(morgan('tiny'));
+app.use(authJwt());
+app.use(errorHandler);
 
 const api = process.env.API_URL;
 
