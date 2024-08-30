@@ -86,7 +86,7 @@ router.delete('/:id', (req, res)=>{
     Order.findByIdAndDelete(req.params.id).then(async order =>{
         if(order) {
             await order.orderItems.map(async orderItem => {
-                await OrderItem.findByIdAndRemove(orderItem)
+                await OrderItem.findByIdAndDelete(orderItem)
             })
             return res.status(200).json({success: true, message: 'the order is deleted!'})
         } else {
